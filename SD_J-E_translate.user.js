@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SD J-E translate
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.1.1
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
 // @match        http://localhost:7860/*
@@ -50,12 +50,15 @@
         }
 
         var text = tb.value;
+        if (text == "") {
+            return
+        }
         if (text == "clear") {
             localStorage.removeItem("textra_user_name");
             localStorage.removeItem("textra_api_key");
             localStorage.removeItem("textra_api_secret");
             alert("翻訳APIキーをクリアしました。");
-            return text;
+            return;
         }
 
         var name = localStorage.getItem("textra_user_name");
@@ -97,7 +100,9 @@
             msg += "APIキーをクリアしたい場合、プロンプトに「clear」とだけ入力して翻訳ボタンを押してください。";
             msg += "\n";
             var api_key = prompt(msg);
-            if (!api_key) { return text; }
+            if (!api_key) {
+                return;
+            }
             if (api_key == 'clear') {
                 localStorage.removeItem("textra_user_name");
                 localStorage.removeItem("textra_api_key");
