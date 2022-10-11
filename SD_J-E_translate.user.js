@@ -4,8 +4,8 @@
 // @version      0.1
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
-// @match        http://localhost:7860/
-// @match        http://127.0.0.1:7860/
+// @match        http://localhost:7860/*
+// @match        http://127.0.0.1:7860/*
 // @run-at       document-end
 // @grant        none
 // @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-sha1.js
