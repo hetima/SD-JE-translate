@@ -12,6 +12,8 @@ Tampermonkeyをインストールしていれば、[このリンク](https://git
 
 主要な機能は [culage 氏による実装](https://github.com/culage/stable-diffusion-webui/commit/65c3ca77c392ff87370f691e1af4c080a894e967) に拠るものです。
 
+![screen shot](https://raw.githubusercontent.com/hetima/SD-JE-translate/main/image.jpg)
+
 ## To-Do
 - 読み込み完了をちゃんと把握したい
 - 翻訳してテキストの行数が変わると textarea のサイズを自動更新したい
