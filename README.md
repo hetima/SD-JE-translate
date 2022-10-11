@@ -15,5 +15,6 @@ Tampermonkeyをインストールしていれば、[このリンク](https://git
 ![screen shot](https://raw.githubusercontent.com/hetima/SD-JE-translate/main/image.jpg)
 
 ## To-Do
-- 読み込み完了をちゃんと把握したい
+- gradio の読み込み完了をちゃんと把握したい
+- 翻訳中を示すインジケータ
 - 翻訳してテキストの行数が変わると textarea のサイズを自動更新したい
