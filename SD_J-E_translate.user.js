@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SD J-E translate
 // @namespace    http://tampermonkey.net/
-// @version      0.1.1
+// @version      0.2.0
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
 // @match        http://localhost:7860/*
@@ -16,8 +16,27 @@
 (function () {
     'use strict';
 
+    function showAnime(spn) {
+        spn.classList.add('jetranslate-spn');
+        spn.style.visibility = "visible";
+    }
+    function hideAnime(spn) {
+        spn.style.visibility = "hidden";
+        spn.classList.remove('jetranslate-spn');
+    }
+
     function setupTextBox(tb) {
-        var btn = document.createElement("button");
+        // インジケーター
+        let spn = document.createElement("div");
+        spn.innerText = "翻訳中";
+        spn.style.float = "right";
+        spn.style.margin = "8px";
+        spn.style.visibility = "hidden";
+        // spn.classList.add('jetranslate-spn');
+        tb.parentElement.insertBefore(spn, tb.nextSibling);
+
+        // ボタン
+        let btn = document.createElement("button");
         btn.innerText = "J→E";
         btn.style.float = "right";
         btn.style.margin = "4px";
@@ -25,16 +44,43 @@
         //btn.class="gr-button gr-button-lg gr-button-secondary self-start";
         btn.classList.add('gr-button', 'gr-button-secondary');
         tb.parentElement.insertBefore(btn, tb.nextSibling);
+        tb.dataset.jetrnsispn = spn;
+
+
         btn.addEventListener('click', function (event) {
+            
             if (event.ctrlKey || event.shiftKey) {
-                translate(tb, 'en_ja');
+                translate(tb, spn, 'en_ja');
             } else {
-                translate(tb, 'ja_en');
+                translate(tb, spn, 'ja_en');
             }
+            tb.dataset.active = true;
         }, false);
     }
 
+
     function setup() {
+        // インジケーターのcss
+        let css = `
+        .jetranslate-spn {
+            font-size: 0.85rem;
+            display: inline-block;
+            animation: jetranslate-rotate 0.5s ease 0s infinite alternate;
+        }
+        @keyframes jetranslate-rotate {
+            from{
+                transform:rotateZ(-10deg);
+            }
+            to{
+                transform:rotateZ(10deg);
+            }
+        }`;
+        let style = document.createElement('style');
+        style.appendChild(document.createTextNode(css));
+        document.querySelector('gradio-app').shadowRoot.append(style);
+
+
+
         document.querySelector('gradio-app').shadowRoot.querySelectorAll('textarea').forEach(function (value, index, list) {
             if (value && value.placeholder.endsWith("rompt")) {
                 console.log(value.placeholder);
@@ -44,14 +90,14 @@
     }
 
     // https://github.com/culage/stable-diffusion-webui/commit/65c3ca77c392ff87370f691e1af4c080a894e967
-    async function translate(tb, type) {
+    async function translate(tb, spn, type) {
         function setTextValue(tb, val) {
             tb.value = val;
         }
 
         var text = tb.value;
         if (text == "") {
-            return
+            return;
         }
         if (text == "clear") {
             localStorage.removeItem("textra_user_name");
@@ -60,6 +106,8 @@
             alert("翻訳APIキーをクリアしました。");
             return;
         }
+
+        showAnime(spn);
 
         var name = localStorage.getItem("textra_user_name");
         var key = localStorage.getItem("textra_api_key");
@@ -89,6 +137,7 @@
             headers: oauth.toHeader(oauth.authorize(options))
         }).then((r) => r.json());
 
+        hideAnime(spn);
         if (res.resultset.code != 0) {
             var msg = "";
             msg += "【アクセス失敗】\n";
@@ -112,10 +161,10 @@
                 localStorage.setItem("textra_api_key", api_key.split("/")[1].trim());
                 localStorage.setItem("textra_api_secret", api_key.split("/")[2].trim());
             }
-            return text;
+            return;
+        }else{
+            setTextValue(tb, res.resultset.result.text);
         }
-        setTextValue(tb, res.resultset.result.text);
-        return;
     }
 
     setTimeout(function () {
