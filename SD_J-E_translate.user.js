@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SD J-E translate
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0
+// @version      0.3.0
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
 // @match        http://localhost:7860/*
@@ -12,6 +12,8 @@
 // @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64-min.js
 // @require https://cdn.jsdelivr.net/npm/oauth-1.0a@2.2.6/oauth-1.0a.min.js
 // ==/UserScript==
+
+// v0.3 送信されるテキストに反映されていなかったのを修正
 
 (function () {
     'use strict';
@@ -92,7 +94,10 @@
     // https://github.com/culage/stable-diffusion-webui/commit/65c3ca77c392ff87370f691e1af4c080a894e967
     async function translate(tb, spn, type) {
         function setTextValue(tb, val) {
-            tb.value = val;
+            tb.focus();
+            tb.setSelectionRange(len, len);
+            document.execCommand("selectAll");
+            document.execCommand("insertText", false, val);
         }
 
         var text = tb.value;
