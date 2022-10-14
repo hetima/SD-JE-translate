@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SD J-E translate
 // @namespace    http://tampermonkey.net/
-// @version      0.3.0
+// @version      0.3.1
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
 // @match        http://localhost:7860/*
@@ -95,6 +95,7 @@
     async function translate(tb, spn, type) {
         function setTextValue(tb, val) {
             tb.focus();
+            let len = val.length;
             tb.setSelectionRange(len, len);
             document.execCommand("selectAll");
             document.execCommand("insertText", false, val);
