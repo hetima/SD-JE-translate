@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SD J-E translate
 // @namespace    http://tampermonkey.net/
-// @version      0.3.1
+// @version      0.3.2
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
 // @match        http://localhost:7860/*
@@ -13,7 +13,8 @@
 // @require https://cdn.jsdelivr.net/npm/oauth-1.0a@2.2.6/oauth-1.0a.min.js
 // ==/UserScript==
 
-// v0.3 送信されるテキストに反映されていなかったのを修正
+// v0.3.2 最新版に対応
+// v0.3.0 送信されるテキストに反映されていなかったのを修正
 
 (function () {
     'use strict';
@@ -28,6 +29,7 @@
     }
 
     function setupTextBox(tb) {
+        if (!tb) return;
         // インジケーター
         let spn = document.createElement("div");
         spn.innerText = "翻訳中";
@@ -63,6 +65,7 @@
 
     function setup() {
         // インジケーターのcss
+        let shadowRoot = document.querySelector('gradio-app').shadowRoot;
         let css = `
         .jetranslate-spn {
             font-size: 0.85rem;
@@ -77,18 +80,18 @@
                 transform:rotateZ(10deg);
             }
         }`;
+        
         let style = document.createElement('style');
         style.appendChild(document.createTextNode(css));
-        document.querySelector('gradio-app').shadowRoot.append(style);
+        shadowRoot.append(style);
 
-
-
-        document.querySelector('gradio-app').shadowRoot.querySelectorAll('textarea').forEach(function (value, index, list) {
-            if (value && value.placeholder.endsWith("rompt")) {
-                console.log(value.placeholder);
-                setupTextBox(value);
-            }
-        });
+        setupTextBox(shadowRoot.querySelector("#txt2img_prompt > label > textarea"));
+        setupTextBox(shadowRoot.querySelector("#txt2img_neg_prompt > label > textarea"));
+        setupTextBox(shadowRoot.querySelector("#txt2img_negative_prompt > label > textarea"));
+        setupTextBox(shadowRoot.querySelector("#img2img_prompt > label > textarea"));
+        setupTextBox(shadowRoot.querySelector("#img2img_neg_prompt > label > textarea"));
+        setupTextBox(shadowRoot.querySelector("#img2img_negative_prompt > label > textarea"));
+        
     }
 
     // https://github.com/culage/stable-diffusion-webui/commit/65c3ca77c392ff87370f691e1af4c080a894e967
