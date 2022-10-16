@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SD J-E translate
 // @namespace    http://tampermonkey.net/
-// @version      0.3.2
+// @version      0.4.0
 // @description  add J-E translate button to stable-diffusion-webui
 // @author       hetima
 // @match        http://localhost:7860/*
@@ -13,6 +13,7 @@
 // @require https://cdn.jsdelivr.net/npm/oauth-1.0a@2.2.6/oauth-1.0a.min.js
 // ==/UserScript==
 
+// v0.4.0 読み込み完了と同時にボタン表示
 // v0.3.2 最新版に対応
 // v0.3.0 送信されるテキストに反映されていなかったのを修正
 
@@ -34,7 +35,7 @@
         let spn = document.createElement("div");
         spn.innerText = "翻訳中";
         spn.style.float = "right";
-        spn.style.margin = "8px";
+        spn.style.margin = "6px 0 0 0";
         spn.style.visibility = "hidden";
         // spn.classList.add('jetranslate-spn');
         tb.parentElement.insertBefore(spn, tb.nextSibling);
@@ -52,7 +53,7 @@
 
 
         btn.addEventListener('click', function (event) {
-            
+
             if (event.ctrlKey || event.shiftKey) {
                 translate(tb, spn, 'en_ja');
             } else {
@@ -80,20 +81,13 @@
                 transform:rotateZ(10deg);
             }
         }`;
-        
+
         let style = document.createElement('style');
         style.appendChild(document.createTextNode(css));
         shadowRoot.append(style);
-
-        setupTextBox(shadowRoot.querySelector("#txt2img_prompt > label > textarea"));
-        setupTextBox(shadowRoot.querySelector("#txt2img_neg_prompt > label > textarea"));
-        setupTextBox(shadowRoot.querySelector("#txt2img_negative_prompt > label > textarea"));
-        setupTextBox(shadowRoot.querySelector("#img2img_prompt > label > textarea"));
-        setupTextBox(shadowRoot.querySelector("#img2img_neg_prompt > label > textarea"));
-        setupTextBox(shadowRoot.querySelector("#img2img_negative_prompt > label > textarea"));
-        
     }
 
+    // 翻訳
     // https://github.com/culage/stable-diffusion-webui/commit/65c3ca77c392ff87370f691e1af4c080a894e967
     async function translate(tb, spn, type) {
         function setTextValue(tb, val) {
@@ -171,13 +165,41 @@
                 localStorage.setItem("textra_api_secret", api_key.split("/")[2].trim());
             }
             return;
-        }else{
+        } else {
             setTextValue(tb, res.resultset.result.text);
         }
     }
 
+    //textareaにボタンを追加
+    let textareaCount = 0;
+    const observer = new MutationObserver(records => {
+        let c = document.querySelector('gradio-app').shadowRoot.querySelector("#txt2img_prompt > label > textarea");
+        records.forEach((record) => {
+            if (record.type == 'childList' && record.addedNodes?.item(0)?.nodeName == "TEXTAREA") {
+                let t = record.addedNodes.item(0);
+                let d = t.parentElement.parentElement;
+                if (d.id.endsWith('prompt')) {
+                    //console.log(record.addedNodes.item(0));
+                    setupTextBox(t);
+                    textareaCount++;
+                }
+            //4個で監視停止
+            } else if (textareaCount >= 4) {
+                observer.disconnect();
+            }
+        })
+    });
+    const options = {
+        childList: true,
+        subtree: true
+
+    };
+    observer.observe(document.querySelector('gradio-app').shadowRoot, options);
+    setup();
+    //時間がたったら監視停止
     setTimeout(function () {
-        setup();
-    }, 5000);
+        observer.disconnect();
+    }, 6000);
 
 })();
+
