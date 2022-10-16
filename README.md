@@ -14,5 +14,3 @@ Tampermonkeyをインストールしていれば、[このリンク](https://git
 
 ![screen shot](https://raw.githubusercontent.com/hetima/SD-JE-translate/main/image.jpg)
 
-## To-Do
-- gradio の読み込み完了をちゃんと把握したい
